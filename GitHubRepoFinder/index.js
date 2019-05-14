@@ -5,10 +5,7 @@ function getHandle(handleName) {
     const searchURL = 'https://api.github.com/users/';
     const searchURLEnd = '/repos';
     let url = searchURL + handleName + searchURLEnd;
-    console.log(url);
     return url;
-    
-    
 }
 
 function fetchHandleRepos(url){
@@ -16,20 +13,25 @@ function fetchHandleRepos(url){
     .then(response => response.json())
     .then(responseJson => {
         console.log(responseJson);
-        displayResults(responseJson);
+        handleFetchResults(responseJson);
     });
 }
+ 
 
-
-function displayResults(responseJson) {
+function handleFetchResults(gitHubArray) {
+    console.log('here')
+    const HTML = gitHubArray.map(repo => {
+      let fullName = repo.full_name;
+      let  url = repo.clone_url;
+      const string = `<li>Repo name and title: ${fullName}<span><br>Link: ${url}<span></li>`
+      return string;
+    })
     $('#results-list').empty();
-    $('#results-list').append(
-    `<h3>${handleName}</h3>
-    <span>${url}<span>`
-    );
+    $('#results-list').append(HTML);
+    $('#results').removeClass('hidden');
+}
+
     
-    $('#results').removeClass('hidden');  
-} 
 
 function watchForm() {
     $('#js-form').submit(e => {
@@ -37,7 +39,6 @@ function watchForm() {
         const handleName = $('#handle-search').val();
          const url = getHandle(handleName);
         fetchHandleRepos(url);
-    })
-    
+    })  
 }
 $(watchForm());
