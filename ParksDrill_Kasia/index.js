@@ -11,9 +11,27 @@ function formatQueryParams(params){
     return queryitems.join('&');
 }
 
-function searchParams(query, maxResults) {
-    const params = {
-      stateCode: query, 
+function searchParams(stateCode, maxResults) {
+  console.log(maxResults);
+  console.log(stateCode);
+  if (/\d/.test(stateCode)){
+    $('#results').addClass('hidden')
+    return $('#js-error-message').text('State Code must only contain letters');
+  } 
+  else {
+    stateCode = stateCode.replace(/\s+/g, '');
+  }
+  
+  const regex = /^[a-z]{2}(?:,[a-z]{2})*$/i
+  if (!(regex.test(stateCode))) {
+    console.log('here')
+    // $('#results').addClass('hidden')
+    return $('#js-error-message').text('Use 2 letter state codes seperated by a coma');
+  }
+
+    
+  const params = {
+      stateCode,
       limit: maxResults || 50, 
       api_key: API_key,
     };
@@ -31,11 +49,10 @@ function searchParams(query, maxResults) {
 function handleFormEntry(){
   $('#js-form').submit(event => {
       event.preventDefault();
-      console.log('here')
+      
       let state = $('#state-search').val();
-      let searchNum= $('#max-results').val();
-      console.log(searchNum);
-      console.log(state);
+      let searchNum= ($('#max-results').val())-1;
+      
       return searchParams(state,searchNum)
       .then(response => {
         console.log('RESPONSE', response)
@@ -51,14 +68,16 @@ function displayResults(data) {
   
    for (let i = 0; i<data.length; i ++){
     const htmlString = data.
-    // let {description ,parkName, directionsInfo} = data[i];
-    htmlString = `<li><h3>${data[i].parkName}</h3>
+    htmlString = `<li><h3>${data[i].fullName}</h3>
     <p> ${data[i].directionsInfo}</p> 
     <p> ${data[i].description}</p></li>`
+    $('#js-error-message').addClass('hidden');
     $('#results').append(htmlString)
     };
     $('#results').removeClass('hidden')
 }
+
+
 
 
 $(handleFormEntry());
